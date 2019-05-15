@@ -28,10 +28,90 @@ typedef pair<ll,ll> pll;
 const int inf = 0x3f3f3f3f;
 const ll inf_ll = 0x3f3f3f3f3f3f3f3fLL;
 /************* header ******************/
-
-
-
+const int maxn = (1 << 20) + 50;
+int s[maxn];
+int n;
+int num[maxn];
+bool used[maxn];
+struct Linear_Basis{
+    int basis[22];
+    int num[22];
+    void clear(){
+        memset(basis,0,sizeof basis);
+        memset(num,0,sizeof num);
+    }
+    void ins(int x){
+        int bk = x;
+        for (int i=20;i>=0;i--){
+            if (x & (1<< i)){
+                if (!basis[i]){basis[i] = x;num[i] = bk;break;}
+                x ^= basis[i];
+            }
+        }
+    }
+    int count(){
+        int cnt = 0;
+        for (int i=0;i<=20;i++){
+            cnt += (basis[i] != 0);
+        }
+        return cnt;
+    }
+    void debug(){
+        _debug("basis : ");
+        for (int i=0;i<=20;i++){
+            if (basis[i])_debug("%d : %d",i,basis[i]);
+        }
+    }
+}basis;
+vector<int> gray_code(int lim){
+    if (lim == 1){
+        return {0,1};
+    }
+    vector<int> temp = gray_code(lim-1);
+    vector<int> ans = temp;
+    reverse(temp.begin(),temp.end());
+    for (int & val: temp){
+        val |= (1<< (lim-1));
+    }
+    ans.insert(ans.end(),temp.begin(),temp.end());
+    return ans;
+}
+void check(int lim){
+    if (lim == 0){
+        cout<<0<<"\n"<<0<<endl;
+        exit(0);
+    }
+    basis.clear();
+    for (int i=1;i<=n;i++){
+        if (s[i] < (1<< lim)){
+            basis.ins(s[i]);
+        }
+    }
+    //_debug("lim=%d",lim);
+    //basis.debug();
+    //_debug("basis.count() = %d",basis.count());
+    if(basis.count() != lim)return;
+    //_debug("here");
+    vector<int> ans = gray_code(lim);
+    cout<<lim<<endl;
+    cout<<0<<" ";
+    int now = 0;
+    for (int i=1;i<ans.size();i++){
+        int p = __builtin_ctz(ans[i] ^ ans[i-1]);
+        now ^= basis.num[p];
+        cout<<now<<" ";
+    }
+    cout<<endl;
+    exit(0);
+}
 int main(){
-
+    cin>>n;
+    for (int i=1;i<=n;i++){
+        cin>>s[i];
+    }
+    for (int i=19;i>=0;i--){
+        check(i);
+    }
+    assert(0);
     return 0;
 }
